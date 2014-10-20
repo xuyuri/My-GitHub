@@ -1,0 +1,85 @@
+body {
+	font:14px "Microsoft yahei",Arial;
+	color:#232323;
+	height:100%;
+}
+a{
+	color:#fff;
+	background:#393C4B;
+	padding:2px 5px;
+	border-radius:3px;
+	text-decoration:none;
+}
+a:hover{
+	background:#202226;
+}
+.clearfix:after {
+	clear:both;
+	content:".";
+	display:block;
+	height:0;
+	line-height:0;
+	font-size:0;
+	visibility:hidden
+}
+.clearfix {
+	zoom:1
+}
+.logo{
+	margin: 50px auto;
+	width: 500px;
+	text-align: center;
+	font-size: 2.5em;
+}
+#main{
+	margin:20px auto;
+	width: 500px;
+}
+#songInfo{
+	margin: 10px 0;
+	text-align: center;
+	font-size: 14px;
+	font-weight: bold;
+	height: 20px;
+}
+.down{
+	padding: 5px 5px 10px;
+	border: 1px solid #000;
+	border-bottom:none;
+	text-align: center;
+}
+#flac{
+	border-bottom: 1px solid #000;
+}
+#result{
+	display: none;
+}
+.form{
+	position:relative;
+}
+#fullUrl{
+	border: 1px solid #AAA;
+	width:413px;
+	height:20px;
+	line-height: 20px;
+	padding: 5px 75px 10px 10px;
+}
+#submit{
+	position: absolute;
+	top:1px;
+	right: 0;
+	background: #000;
+	color: #FFF;
+	border: none;
+	width:70px;
+	height:36px;
+	line-height: 20px;
+	cursor:pointer;
+}
+.down span{
+	display: inline-block;
+	text-align: center;
+}
+.hide{
+	display: none;
+}

@@ -53,7 +53,7 @@
                     var newDivNode = $("<div>").attr("id", i);    //设置每个节点的id值
                     newDivNode.attr("style", "font:14px/25px arial;height:25px;padding:0 8px;cursor: pointer;");
 
-                    newDivNode.html(wordNode).appendTo(autoNode);  //追加到弹出框
+                    newDivNode.html(wordNode).appendTo(autoNode);  //将newDivNode的值设置为wordNode，并追加到弹出框
 
                     //鼠标移入高亮，移开不高亮
                     newDivNode.mouseover(function () {

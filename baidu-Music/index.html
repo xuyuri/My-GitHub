@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Baidu Music Download</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" media="all" href="style.css" />
+	<script type="text/javascript" src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
+	<script type="text/javascript"><!--
+	!window.jQuery && document.write('<script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.8.3/jquery.min.js"></sc'+'ript>');
+	--></script>
+</head>
+<body>
+	<div class="logo">Baidu Music Download</div>
+	<div id="main">
+		<div class="form">
+			<input type="text" id="song" placeholder="Example: 小苹果">
+			<div id="auto_div"></div>
+			<button id="submit" type="button">Go!</button>
+		</div>
+		<div id="result">
+			<div id="songInfo"></div>
+			<div id="url64" class="down clearfix"><span>地址 ①：</span></div>
+			<div id="url128" class="down clearfix"><span>地址 ②：</span></div>
+			<div id="url192" class="down clearfix"><span>地址 ③：</span></div>
+			<div id="url320" class="down clearfix"><span>地址 ④：</span></div>
+			<div id="flac" class="down clearfix"><span>地址 ⑤：</span></div>
+		</div>
+	</div>
+<script type="text/javascript">
+var loadUrl=function($songId,$type,$rate,$divID){
+var timestamp = (new Date()).valueOf();
+if($type=="flac"){
+	var url="http://music.baidu.com/data/music/fmlink?songIds="+$songId+"&type="+$type+"&callback=jsonplink"+timestamp;
+	var $xrate = '';
+}else{
+	var url="http://music.baidu.com/data/music/fmlink?songIds="+$songId+"&type="+$type+"&rate="+$rate+"&callback=jsonplink"+timestamp;
+	var $xrate = '['+$rate+'kbps]';
+}
+$.ajax({
+	type: "get",
+	async: true,
+	url: url,
+	dataType: "jsonp",
+	jsonp: "callback",
+	jsonpCallback: "jsonplink" + timestamp,
+	timeout: 5000,
+	success: function(json) {
+		var data = json.data.songList[0];
+		if(data.showLink != "") {
+			if($rate == data.rate | $rate == '') {
+				$($divID).append($('<span class="autoAdd">' + data.format + '</span>').css('width', '60'));
+				$($divID).append($('<span class="autoAdd">' + data.rate + 'kbps</span>').css('width', '80'));
+				$($divID).append($('<span class="autoAdd">' + (data.size / 1024 / 1024).toFixed(2) + 'M</span>').css('width', '80'));
+				if(data.showLink.match(/(.*)pan.baidu.com(.*)/i)){
+					$($divID).append($('<span class="autoAdd"><a href="' + data.showLink + '" rel="noreferrer" target="_blank">' + data.format + '下载</a></span>').css('width', '100'));
+				}else{
+					$($divID).append($('<span class="autoAdd"><a href="xxooATHL.php?url=' + data.showLink + '" rel="noreferrer" target="_blank">' + data.format + '下载</a></span>').css('width', '100'));
+				}
+				$($divID).append($('<span class="autoAdd"><a href="http://music.baidu.com' + data.lrcLink + '" rel="noreferrer" target="_top">歌词下载</a></span>').css('width', '100'));
+				if($('#songInfo').text() == '') {
+					$('#songInfo').append($('<span id="name" class="autoAdd">' + data.songName + '</span><span id="art" class="autoAdd"> - ' + data.artistName + '</span>'));
+				}
+			} else {
+				$($divID).append($('<span class="autoAdd">暂时没有获取到'+$type+$xrate+'资源，您可以尝试再次提交。</span>').css('width', '400'))
+			}
+		} else {
+			$($divID).append($('<span class="autoAdd">暂时没有获取到'+$type+$xrate+'资源，您可以尝试再次提交。</span>').css('width', '400'))
+		}
+	},
+	error: function() {
+		loadUrl($songId,$type,$rate,$divID);
+	}
+});
+}
+var doi=function(i,BDID){
+	switch(i){
+	case 1:
+		loadUrl(BDID,'mp3','64','#url64');
+		break;
+	case 2:
+		loadUrl(BDID,'mp3','128','#url128');
+		break;
+	case 3:
+		loadUrl(BDID,'mp3','192','#url192');
+		break;
+	case 4:
+		loadUrl(BDID,'mp3','320','#url320');
+		break;
+	case 5:
+		loadUrl(BDID,'flac','','#flac');
+		break;
+	default:
+		alert('未知错误');
+	}
+	if(i<5){
+		i++;
+		var x=function(){
+			doi(i,BDID);
+		}
+		setTimeout(x,200);	//周期性执行函数x
+	}
+}
+var list = function(key){
+
+}
+$(document).ready(function() {
+	old_value = $("#song").val();
+	test_list = [];
+	$("#song").focus(function () {
+        if ($("#song").val() == "") {
+            AutoComplete("auto_div", "song", test_list);
+        }
+    });
+
+    $("#song").keyup(function () {
+
+        AutoComplete("auto_div", "song", test_list);
+    });
+
+	$('#submit').click(function(){
+		$song=$('#song').val();
+		if($song.match(/http:\/\/music.baidu.com\/song\/(\d*)/gi) && $song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)){
+			var BDID=$song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)[0];
+			$('#result').show();
+			$('.autoAdd').remove();
+			doi(1,BDID);
+		}else{
+			if($song.length<1){
+				alert('别开玩笑了，你提交的是空数据呀！');
+			}else{
+				alert('别开玩笑了，介个不是百度音乐的歌曲连接呀！');
+			}
+		}
+	})
+	$('#song').click(function(){
+		$(this).select();
+	})
+});
+</script>
+</body>
+</html>
