@@ -27,6 +27,10 @@
 		</div>
 	</div>
 <script type="text/javascript">
+//js定义全局变量 http://blog.csdn.net/yboker/article/details/8171195
+songs = new Array();
+old_value = "";
+highlightindex = -1;   //高亮
 var loadUrl=function($songId,$type,$rate,$divID){
 var timestamp = (new Date()).valueOf();
 if($type=="flac"){
@@ -103,26 +107,34 @@ var doi=function(i,BDID){
 }
 //搜索建议列表
 var list = function(key){
-	list = new Array();	//歌曲+作者列表
+	song_list = new Array();	//歌曲+作者列表
+	var timestamp = (new Date()).valueOf();
 	//typeof()判断对象是否存在
 	if(typeof(key)!="undefined"&&key != ''){
-		$.ajax({
-			type:"get",
-			async: true,		
+		$.ajax({				
 			url:"http://tingapi.ting.baidu.com/v1/restserver/ting?method=baidu.ting.search.suggestion&format=json&from=ios&version=2.1.1&query="+key,	
 			dataType: "jsonp",
+			type:"get",
 			success:function(data){
 				//String 强制类型转换;
 				//split函数：字符分割函数，返回一个数组
-				list = String(data.suggestion_list).split(",");			
+				//alert(data.suggestion_list);
+				songs.length = 0;	//清空数组，参见：http://wangjingyi.iteye.com/blog/1478145
+				song_list = String(data.suggestion_list).split(",");	
+				songs = song_list;			
 				//alert(list);				
 			}
 		});
 	}else{
-		$.ajax({
-			type:"get",
-			async: false,		
+		/*
+		文档里有写，用jsonp实现跨域，只能使用异步提交，无论你是否设置async，原文链接：
+		http://api.jquery.com/jQuery.ajax/
+		原文：
+		Cross-domain requests and dataType: "jsonp" requests do not support synchronous operation. 
+		*/
+		$.ajax({					
 			url:"http://tingapi.ting.baidu.com/v1/restserver/ting?from=qianqian&version=2.1.0&method=baidu.ting.billboard.billList&format=json&type=2&offset=0&size=10",	
+			type:"get",			        
 			dataType: "jsonp",
 			success:function(data){		
 				var n = 0;
@@ -132,27 +144,108 @@ var list = function(key){
 				var reg=new RegExp('song_id',"gi");
 				count = str.match(reg).length;
 				for(var i=0; i<count; i++){
-					list[n++] = data.song_list[i]['title'] + ' ' + data.song_list[i]['author'];
+					song_list[n++] = data.song_list[i]['title'] + ' ' + data.song_list[i]['author'];
 				}
-				alert(list);				
+				//alert('0'+list);
+				songs.length = 0;
+				songs = song_list;		
+				//alert(songs);		
 			}
-		});
+		});		
 	}
-	alert(list);
-	return list;
+	//sleep(1);
+	//alert('1'+list);
+	//return list;
 }
-$(document).ready(function() {
+ //自动完成
+        function AutoComplete(au, search, mylist) {
+            if ($("#" + search).val() != old_value || old_value == "") {
+                var autoNode = $("#" + au);   //缓存对象（弹出框）
+                var carlist = new Array();
+                var n = 0;
+                old_value = $("#" + search).val();
+
+                for (i in mylist) {
+                    if (mylist[i].indexOf(old_value) >= 0) {
+                        carlist[n++] = mylist[i];
+                    }
+                }
+                if (carlist.length == 0) {
+                    autoNode.hide();
+                    return;
+                }
+                autoNode.empty();  //清空上次的记录
+                for (i in carlist) {
+                    var wordNode = carlist[i];   //弹出框里的每一条内容
+
+                    var newDivNode = $("<div>").attr("id", i);    //设置每个节点的id值
+                    newDivNode.attr("style", "font:14px/25px arial;height:25px;padding:0 8px;cursor: pointer;");
+
+                    newDivNode.html(wordNode).appendTo(autoNode);  //将newDivNode的值设置为wordNode，并追加到弹出框
+
+                    //鼠标移入高亮，移开不高亮
+                    newDivNode.mouseover(function () {
+                        if (highlightindex != -1) {        //原来高亮的节点要取消高亮（是-1就不需要了）
+                            autoNode.children("div").eq(highlightindex).css("background-color", "white");
+                        }
+                        //记录新的高亮节点索引
+                        highlightindex = $(this).attr("id");
+                        $(this).css("background-color", "#ebebeb");
+                    });
+                    newDivNode.mouseout(function () {
+                        $(this).css("background-color", "white");
+                    });
+
+                    //鼠标点击文字上屏
+                    newDivNode.click(function () {
+
+                        //取出高亮节点的文本内容
+                        //var comText = autoNode.hide().children("div").eq(highlightindex).text();
+                        var comText = autoNode.children("div").eq(highlightindex).text();
+                        highlightindex = -1;
+                        //文本框中的内容变成高亮节点的内容
+                        $("#" + search).val(comText);
+                    })
+                    if (carlist.length > 0) {    //如果返回值有内容就显示出来
+                        autoNode.show();
+                    } else {               //服务器端无内容返回 那么隐藏弹出框
+                        autoNode.hide();
+                        //弹出框隐藏的同时，高亮节点索引值也变成-1
+                        highlightindex = -1;
+                    }
+                }
+            }        
+            //点击页面隐藏自动补全提示框
+            //当点击页面时执行function方法
+            document.onclick = function (e) {
+                var e = e ? e : window.event;
+                var tar = e.srcElement || e.target;
+                if (tar.id != search) {
+                    if ($("#" + au).is(":visible")) {
+                        $("#" + au).css("display", "none")
+                    }
+                }
+            }
+            console.log('carlist'+carlist);    
+
+        }
+$(document).ready(function() {	
+	list();
 	old_value = $("#song").val();
 	test_list = [];
-	$("#song").focus(function () {
+	$("#song").focus(function () {		
         if ($("#song").val() == "") {
-            AutoComplete("auto_div", "song", test_list);
+        	list();
+            AutoComplete("auto_div", "song", songs);
         }
+         console.log('song1'+songs); 
+              
     });
 
     $("#song").keyup(function () {
-
-        AutoComplete("auto_div", "song", test_list);
+    	list($("#song").val());
+        AutoComplete("auto_div", "song", songs);
+         console.log('song2'+songs); 
     });
 
 	$('#submit').click(function(){
@@ -170,10 +263,10 @@ $(document).ready(function() {
 				alert('别开玩笑了，介个不是百度音乐的歌曲连接呀！');
 			}
 		}
-		*/
-		s = list();
-		alert(s);
+		*/		
+		alert(songs);
 	})
+	
 	$('#song').click(function(){
 		$(this).select();
 	})
