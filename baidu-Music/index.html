@@ -13,7 +13,7 @@
 	<div class="logo">Baidu Music Download</div>
 	<div id="main">
 		<div class="form">
-			<input type="text" id="song" placeholder="Example: 小苹果">
+			<input type="text" id="song" placeholder="Example: http://music.baidu.com/song/65613553">
 			<div id="auto_div"></div>
 			<button id="submit" type="button">Go!</button>
 		</div>
@@ -36,6 +36,7 @@ if($type=="flac"){
 	var url="http://music.baidu.com/data/music/fmlink?songIds="+$songId+"&type="+$type+"&rate="+$rate+"&callback=jsonplink"+timestamp;
 	var $xrate = '['+$rate+'kbps]';
 }
+//$("#song").val(url)
 $.ajax({
 	type: "get",
 	async: true,
@@ -100,8 +101,45 @@ var doi=function(i,BDID){
 		setTimeout(x,200);	//周期性执行函数x
 	}
 }
+//搜索建议列表
 var list = function(key){
-
+	list = new Array();	//歌曲+作者列表
+	//typeof()判断对象是否存在
+	if(typeof(key)!="undefined"&&key != ''){
+		$.ajax({
+			type:"get",
+			async: true,		
+			url:"http://tingapi.ting.baidu.com/v1/restserver/ting?method=baidu.ting.search.suggestion&format=json&from=ios&version=2.1.1&query="+key,	
+			dataType: "jsonp",
+			success:function(data){
+				//String 强制类型转换;
+				//split函数：字符分割函数，返回一个数组
+				list = String(data.suggestion_list).split(",");			
+				//alert(list);				
+			}
+		});
+	}else{
+		$.ajax({
+			type:"get",
+			async: false,		
+			url:"http://tingapi.ting.baidu.com/v1/restserver/ting?from=qianqian&version=2.1.0&method=baidu.ting.billboard.billList&format=json&type=2&offset=0&size=10",	
+			dataType: "jsonp",
+			success:function(data){		
+				var n = 0;
+				//Json转换为字符串，参考：http://www.css88.com/archives/3919
+				str = JSON.stringify(data);
+				//在data中查找song_id的个数，使用正则
+				var reg=new RegExp('song_id',"gi");
+				count = str.match(reg).length;
+				for(var i=0; i<count; i++){
+					list[n++] = data.song_list[i]['title'] + ' ' + data.song_list[i]['author'];
+				}
+				alert(list);				
+			}
+		});
+	}
+	alert(list);
+	return list;
 }
 $(document).ready(function() {
 	old_value = $("#song").val();
@@ -118,6 +156,7 @@ $(document).ready(function() {
     });
 
 	$('#submit').click(function(){
+		/*
 		$song=$('#song').val();
 		if($song.match(/http:\/\/music.baidu.com\/song\/(\d*)/gi) && $song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)){
 			var BDID=$song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)[0];
@@ -131,6 +170,9 @@ $(document).ready(function() {
 				alert('别开玩笑了，介个不是百度音乐的歌曲连接呀！');
 			}
 		}
+		*/
+		s = list();
+		alert(s);
 	})
 	$('#song').click(function(){
 		$(this).select();

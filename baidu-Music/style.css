@@ -57,7 +57,7 @@ a:hover{
 .form{
 	position:relative;
 }
-#fullUrl{
+#song{
 	border: 1px solid #AAA;
 	width:413px;
 	height:20px;
@@ -83,3 +83,11 @@ a:hover{
 .hide{
 	display: none;
 }
+#auto_div{
+	display: none;
+	width: 413px;
+	border: 1px #74c0f9 solid;
+	background: #FFF;
+	padding: 5px 75px 10px 10px;
+	color: #323232;
+}			
