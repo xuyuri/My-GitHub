@@ -44,12 +44,11 @@ a:hover{
 }
 .down{
 	padding: 5px 5px 10px;
-	border: 1px solid #000;
-	
+	border: 1px solid #000;	
 	text-align: center;
 }
-#flac{
-	border-bottom: 1px solid #000;
+#urlflac{
+	border-bottom: 2px solid #000;
 }
 #result{
 	display: none;
@@ -57,7 +56,7 @@ a:hover{
 .form{
 	position:relative;
 }
-#song{
+#title{
 	border: 1px solid #AAA;
 	width:413px;
 	height:20px;
@@ -83,7 +82,7 @@ a:hover{
 .hide{
 	display: none;
 }
-#auto_div{
+#suggest{
 	display: none;
 	width: 413px;
 	border: 1px #74c0f9 solid;
