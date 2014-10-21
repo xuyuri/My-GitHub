@@ -19,18 +19,24 @@
 		</div>
 		<div id="result">
 			<div id="songInfo"></div>
+			<div id="songLink"></div>
+			<!--
 			<div id="url64" class="down clearfix"><span>地址 ①：</span></div>
 			<div id="url128" class="down clearfix"><span>地址 ②：</span></div>
 			<div id="url192" class="down clearfix"><span>地址 ③：</span></div>
 			<div id="url320" class="down clearfix"><span>地址 ④：</span></div>
 			<div id="flac" class="down clearfix"><span>地址 ⑤：</span></div>
+		-->
 		</div>
 	</div>
 <script type="text/javascript">
 //js定义全局变量 http://blog.csdn.net/yboker/article/details/8171195
 songs = new Array();
+songId = 0;
 old_value = "";
 highlightindex = -1;   //高亮
+allRate = new Array("64","80","96","112","128","160","192","224","256","320","flac");
+num = 0;
 var loadUrl=function($songId,$type,$rate,$divID){
 var timestamp = (new Date()).valueOf();
 if($type=="flac"){
@@ -40,7 +46,6 @@ if($type=="flac"){
 	var url="http://music.baidu.com/data/music/fmlink?songIds="+$songId+"&type="+$type+"&rate="+$rate+"&callback=jsonplink"+timestamp;
 	var $xrate = '['+$rate+'kbps]';
 }
-//$("#song").val(url)
 $.ajax({
 	type: "get",
 	async: true,
@@ -51,24 +56,23 @@ $.ajax({
 	timeout: 5000,
 	success: function(json) {
 		var data = json.data.songList[0];
-		if(data.showLink != "") {
-			if($rate == data.rate | $rate == '') {
-				$($divID).append($('<span class="autoAdd">' + data.format + '</span>').css('width', '60'));
+		//alert(JSON.stringify(data.rate));
+		if(data.showLink != "") {		
+			if($rate == data.rate | $rate == ''|$type=='flac') {	
+				num++;						
+				$($('#songLink')).append($('<div id="url'+$rate+'" class="down clearfix"><span>地址 '+num+'：</span></div>'));	
+				$($divID).append($('<span class="autoAdd">' + data.format + '</span>').css('width', '60'));				
 				$($divID).append($('<span class="autoAdd">' + data.rate + 'kbps</span>').css('width', '80'));
 				$($divID).append($('<span class="autoAdd">' + (data.size / 1024 / 1024).toFixed(2) + 'M</span>').css('width', '80'));
-				if(data.showLink.match(/(.*)pan.baidu.com(.*)/i)){
-					$($divID).append($('<span class="autoAdd"><a href="' + data.showLink + '" rel="noreferrer" target="_blank">' + data.format + '下载</a></span>').css('width', '100'));
-				}else{
-					$($divID).append($('<span class="autoAdd"><a href="xxooATHL.php?url=' + data.showLink + '" rel="noreferrer" target="_blank">' + data.format + '下载</a></span>').css('width', '100'));
-				}
+				$($divID).append($('<span class="autoAdd"><a href="' + data.showLink + '" rel="noreferrer" target="_top">' + data.format + '下载</a></span>').css('width', '100'));
 				$($divID).append($('<span class="autoAdd"><a href="http://music.baidu.com' + data.lrcLink + '" rel="noreferrer" target="_top">歌词下载</a></span>').css('width', '100'));
 				if($('#songInfo').text() == '') {
 					$('#songInfo').append($('<span id="name" class="autoAdd">' + data.songName + '</span><span id="art" class="autoAdd"> - ' + data.artistName + '</span>'));
 				}
-			} else {
+			} else{
 				$($divID).append($('<span class="autoAdd">暂时没有获取到'+$type+$xrate+'资源，您可以尝试再次提交。</span>').css('width', '400'))
 			}
-		} else {
+		} else {			
 			$($divID).append($('<span class="autoAdd">暂时没有获取到'+$type+$xrate+'资源，您可以尝试再次提交。</span>').css('width', '400'))
 		}
 	},
@@ -77,32 +81,17 @@ $.ajax({
 	}
 });
 }
-var doi=function(i,BDID){
-	switch(i){
-	case 1:
-		loadUrl(BDID,'mp3','64','#url64');
-		break;
-	case 2:
-		loadUrl(BDID,'mp3','128','#url128');
-		break;
-	case 3:
-		loadUrl(BDID,'mp3','192','#url192');
-		break;
-	case 4:
-		loadUrl(BDID,'mp3','320','#url320');
-		break;
-	case 5:
-		loadUrl(BDID,'flac','','#flac');
-		break;
-	default:
-		alert('未知错误');
-	}
-	if(i<5){
+var doi=function(i,BDID){	
+	if(i<allRate.length){
+		if(i==allRate.length-1){
+			loadUrl(BDID,'flac','flac','#urlflac');			
+		}
+		else loadUrl(BDID,'mp3',allRate[i],'#url'+allRate[i]);
 		i++;
 		var x=function(){
 			doi(i,BDID);
 		}
-		setTimeout(x,200);	//周期性执行函数x
+		setTimeout(x,50);	//周期性执行函数x
 	}
 }
 //搜索建议列表
@@ -120,8 +109,8 @@ var list = function(key){
 				//split函数：字符分割函数，返回一个数组
 				//alert(data.suggestion_list);
 				songs.length = 0;	//清空数组，参见：http://wangjingyi.iteye.com/blog/1478145
-				song_list = String(data.suggestion_list).split(",");	
-				songs = song_list;			
+				song_list = String(data.suggestion_list).split(",");					
+				songs = song_list.length>10?song_list.splice(0,10):song_list;	//最多显示10个建议歌名			
 				//alert(list);				
 			}
 		});
@@ -143,8 +132,9 @@ var list = function(key){
 				//在data中查找song_id的个数，使用正则
 				var reg=new RegExp('song_id',"gi");
 				count = str.match(reg).length;
+				count = count > 10?10:count; //最多显示10个建议歌名
 				for(var i=0; i<count; i++){
-					song_list[n++] = data.song_list[i]['title'] + ' ' + data.song_list[i]['author'];
+					song_list[n++] = data.song_list[i]['title'] + "&nbsp&nbsp&nbsp&nbsp&nbsp" + data.song_list[i]['author'];
 				}
 				//alert('0'+list);
 				songs.length = 0;
@@ -153,12 +143,27 @@ var list = function(key){
 			}
 		});		
 	}
-	//sleep(1);
-	//alert('1'+list);
-	//return list;
 }
+//监听输入框变化 参考：http://www.jb51.net/article/27684.htm
+function immediately(){
+	var element = document.getElementById("song");
+	if("\v"=="v") {
+		element.onpropertychange = webChange;
+	}else{
+		element.addEventListener("input",webChange,false);
+	}
+	function webChange(){
+		if(element.value){
+			list(element.value);
+			getSongId(String(element.value));
+			//alert('1 '+songId);			
+		};
+	}
+
+}
+immediately();
  //自动完成
-        function AutoComplete(au, search, mylist) {
+function AutoComplete(au, search, mylist) {
             if ($("#" + search).val() != old_value || old_value == "") {
                 var autoNode = $("#" + au);   //缓存对象（弹出框）
                 var carlist = new Array();
@@ -179,7 +184,7 @@ var list = function(key){
                     var wordNode = carlist[i];   //弹出框里的每一条内容
 
                     var newDivNode = $("<div>").attr("id", i);    //设置每个节点的id值
-                    newDivNode.attr("style", "font:14px/25px arial;height:25px;padding:0 8px;cursor: pointer;");
+                    newDivNode.attr("style", "font:13px/20px arial;height:20px;padding:0 8px;cursor: pointer;");
 
                     newDivNode.html(wordNode).appendTo(autoNode);  //将newDivNode的值设置为wordNode，并追加到弹出框
 
@@ -204,7 +209,8 @@ var list = function(key){
                         var comText = autoNode.children("div").eq(highlightindex).text();
                         highlightindex = -1;
                         //文本框中的内容变成高亮节点的内容
-                        $("#" + search).val(comText);
+                        $("#" + search).val(comText);                        
+                        getSongId(comText);
                     })
                     if (carlist.length > 0) {    //如果返回值有内容就显示出来
                         autoNode.show();
@@ -225,46 +231,78 @@ var list = function(key){
                         $("#" + au).css("display", "none")
                     }
                 }
-            }
-            //console.log('carlist'+carlist);    
+            }            
 
-        }
+}
+//获取歌曲id
+function getSongId(key){
+	if(typeof(key)!="undefined"&&key != ''){
+		var url = "http://tingapi.ting.baidu.com/v1/restserver/ting?from=qianqian&version=2.1.0&method=baidu.ting.search.common&format=json&page_no=1&page_size=1&query="+key;			
+		$.ajax({
+			type: "get",
+			async: true,
+			url: url,
+			dataType: "jsonp",	
+			success:function(data){
+				str = JSON.stringify(data);
+				//在data中查找song_id的个数，使用正则
+				var reg=new RegExp('song_id',"gi");
+				count = str.match(reg).length;
+				songId = count>0?data.song_list[0]['song_id']:0;
+			}
+		});		
+	}
+}
+//js实现删除div下所有子节点 参考：http://blog.csdn.net/moonx/article/details/5925756
+function removeAllChild()
+{
+    var div = document.getElementById("songLink");
+    while(div.hasChildNodes()) //当div下还存在子节点时 循环继续
+    {
+        div.removeChild(div.firstChild);
+    }
+}
 $(document).ready(function() {	
 	list();
-	old_value = $("#song").val();
-	test_list = [];
+	old_value = $("#song").val();	
 	$("#song").focus(function () {		
-        if ($("#song").val() == "") {
+		$("#song").val('');	
+        if ($("#song").val() == "") {        	
         	list();
             AutoComplete("auto_div", "song", songs);
-        }
-         //console.log('song1'+songs); 
+        }         
               
     });
 
     $("#song").keyup(function () {
-    	list($("#song").val());
-        AutoComplete("auto_div", "song", songs);
-         console.log('song2'+songs); 
+    	$('#result').hide();
+    	//alert($("#song").val());
+    	//list($("#song").val());
+        AutoComplete("auto_div", "song", songs);         
     });
 
-	$('#submit').click(function(){
-		/*
-		$song=$('#song').val();
-		if($song.match(/http:\/\/music.baidu.com\/song\/(\d*)/gi) && $song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)){
-			var BDID=$song.replace('http://music.baidu.com/song/','').match(/(\d*)/gi)[0];
-			$('#result').show();
-			$('.autoAdd').remove();
-			doi(1,BDID);
+	$('#submit').click(function(){	
+		num = 0;
+		$song_name=$('#song').val();		
+		if(typeof($song_name) != "undefined" && $song_name !=''){	
+			removeAllChild();		
+			getSongId($song_name);
+			//alert('1 '+songId);
+			if(songId == '0')
+				alert("暂时没有获取到歌曲信息!");
+			else{
+				$('#result').show();
+				$('.autoAdd').remove();
+				doi(0,songId);
+			}			
+			
+			//alert(songId);	
 		}else{
-			if($song.length<1){
-				alert('别开玩笑了，你提交的是空数据呀！');
-			}else{
-				alert('别开玩笑了，介个不是百度音乐的歌曲连接呀！');
-			}
-		}
-		*/		
-		alert(songs);
+			alert('别开玩笑了，你提交的是空数据呀！');
+		}			
+		//alert(songs);
+		
+		//getSongId($('#song').val());
 	})
 	
 	$('#song').click(function(){
