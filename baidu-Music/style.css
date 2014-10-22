@@ -1,8 +1,18 @@
-body {
+body1 {		
 	font:14px "Microsoft yahei",Arial;
-	color:#232323;
+	color:#000000;
 	height:100%;
+	background-image: url(back.jpg);
+	background-size:cover;
 }
+body {		
+	font-family:Arial,Helvetica,sans-serif;font-size:100%;
+	color:#000000;
+	height:100%;
+	background-image: url(back.jpg);
+	background-size:cover;
+}
+
 a{
 	color:#fff;
 	background:#393C4B;
@@ -26,14 +36,15 @@ a:hover{
 	zoom:1
 }
 .logo{
-	margin: 50px auto;
+	margin: 100px  auto 40px auto;
 	width: 500px;
 	text-align: center;
 	font-size: 2.5em;
+	font-family: "Times New Roman", Times, serif;
 }
 #main{
-	margin:20px auto;
-	width: 500px;
+	margin:10px auto;
+	width: 600px;
 }
 #songInfo{
 	margin: 10px 0;
@@ -41,14 +52,15 @@ a:hover{
 	font-size: 14px;
 	font-weight: bold;
 	height: 20px;
+	
 }
 .down{
 	padding: 5px 5px 10px;
-	border: 1px solid #000;	
+	border: 1px solid #DCDCDC;	
 	text-align: center;
 }
 #urlflac{
-	border-bottom: 2px solid #000;
+	border-bottom: 2px solid #DCDCDC;
 }
 #result{
 	display: none;
@@ -58,10 +70,11 @@ a:hover{
 }
 #title{
 	border: 1px solid #AAA;
-	width:413px;
+	width:443px;
 	height:20px;
 	line-height: 20px;
-	padding: 5px 75px 10px 10px;
+	padding: 8px 75px 8px 10px;	
+	font-size:15px;
 }
 #submit{
 	position: absolute;
@@ -75,7 +88,7 @@ a:hover{
 	line-height: 20px;
 	cursor:pointer;
 }
-.down span{
+.down span{	
 	display: inline-block;
 	text-align: center;
 }
@@ -88,5 +101,5 @@ a:hover{
 	border: 1px #74c0f9 solid;
 	background: #FFF;
 	padding: 5px 75px 10px 10px;
-	color: #323232;
+	color: #323232;		
 }			
