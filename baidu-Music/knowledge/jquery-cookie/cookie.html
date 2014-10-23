@@ -1,0 +1,41 @@
+<html>  
+   <head>  
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+     <title>JQuery-Cookie插件</title>  
+     <script type="text/javascript" src="jquery-latest.js"></script>  
+     <script type="text/javascript" src="jquery.cookie.js"></script>  
+   </head>  
+   <body>  
+     <a href="#">设置cookie1</a><br>  
+     <a href="#">设置cookie2</a><br>  
+     <a href="#">获取cookie</a><br>  
+     <a href="#">删除cookie</a><br>  
+   </body>  
+ </html>  
+ <script type="text/javascript">  
+ $(function(){  
+    var COOKIE_NAME = 'test_cookie';  
+    //设置cookie，通过时间间隔  
+    $('a').eq(0).click(function() {  
+        $.cookie(COOKIE_NAME, 'test', { path: '/', expires: 1 });  
+        return false;  
+    });  
+    // 设置cookie，到期时间  
+    $('a').eq(1).click(function() {  
+        var date = new Date();  
+        date.setTime(date.getTime() + (1 * 24 * 60 * 60 * 1000));  
+        $.cookie(COOKIE_NAME, 'test', { path: '/', expires: date });  
+        return false;  
+    });  
+    // 获取 cookie  
+    $('a').eq(2).click(function() {  
+        alert($.cookie(COOKIE_NAME));  
+        return false;  
+    });  
+    // 删除cookie  
+    $('a').eq(3).click(function() {  
+        $.cookie(COOKIE_NAME, null, { path: '/' });  
+        return false;  
+    });  
+ });  
+ </script> 

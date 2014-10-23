@@ -203,8 +203,45 @@ function removeAllChild(){
         div.removeChild(div.firstChild);
     }
 }
+function load(){ 
+    //jquery 修改css属性  
+    var is_login = $.cookie("login");
+    if(typeof(is_login)!="undefined" && is_login =="1"){
+        $(".pass").css("display", "none");
+        $("#submit").removeAttr("disabled");
+        $("#title").removeAttr("disabled");
+        $("#submit").css("cursor", "pointer");    
+    }else{
+        $("#submit").attr("disabled", "disabled");
+        $("#submit").css("cursor", "default");
+        $("#title").attr("disabled", "disabled");             
+    }
+
+}
+//鉴权
+function approve(){
+    var data = new Date();
+    var year= String(data.getFullYear());
+    var month = data.getMonth()+1;
+    var day = data.getDate();
+    month = month<10?"0"+month:month;
+    day = day<10?"0"+day:day;
+    var date = year+month+day;
+    var password = $("#password").val();
+
+    if(typeof(password)!="undefined" && password!=""){        
+        if(password == "xuyongwei"+date){
+            $.cookie("login","1", {path:"/", expires:1 });
+            load();                      
+        }else alert("不知道密码?! 呵呵呵...");
+    }else alert("不输入密码就想访问啊，呵呵呵...");
+}
 $(document).ready(function() {		
-	list();
+    document.oncontextmenu=new Function("event.returnValue=false;"); //禁止右键功能,单击右键将无任何反应 
+    document.onselectstart=new Function("event.returnValue=false;"); //禁止先择,也就是无法复制 
+    //$.cookie("login",null,{ path: '/' }); //删除cookie
+    load();  
+    list();
 	getSongId(songList[0]);	
 	oldValue = $("#title").val();	
 	$("#title").focus(function () {		
@@ -236,7 +273,7 @@ $(document).ready(function() {
 				console.log(songId);
 			}			
 		}else{
-			alert('请输入！');
+			alert('输入点东西嘛！！');
 		}			
 	})
 	

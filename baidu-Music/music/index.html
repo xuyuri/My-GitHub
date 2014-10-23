@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Music Download</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" media="all" href="meda/style.css" />
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<script type="text/javascript" src="meda/jquery.cookie.js"></script>	
+</head>
+<body>	
+	<div class="logo">Music    Download</div>
+		<div id="main">
+			<div class="form">
+				<input type="text" id="title"><!--placeholder 属性可以添加输入框底面提示文字-->
+				<div id="suggest"></div>
+				<button id="submit" type="button">Go!</button>
+			</div>
+			<div id="result">
+				<div id="songInfo"></div>
+				<div id="songLink"></div>
+			</div>
+		</div>
+	<div class="pass" id="lock">		
+		<input type="password" id="password" placeholder="password" onkeydown="if(event.keyCode==13){approve()}">
+	</div>
+</body>
+</html>
+<script type="text/javascript" src="meda/music.js"></script>
